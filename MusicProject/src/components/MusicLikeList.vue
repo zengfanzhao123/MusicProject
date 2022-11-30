@@ -3,15 +3,16 @@
             <div class="searchResult2">
                 <div class="head">
                 <span style="padding-right:348px;margin-left: 62px;">歌名</span><span style="padding-right:200px">歌手</span>
-                <span style="padding-right:40px">时长</span>
+                <span style="padding-right:204px">专辑</span><span style="padding-right:40px">时长</span>
                 </div>
                 <ul>
-                    <li v-for="(s,i) in tableData" :key="i" 
-                    @dblclick="playmusic(s)">
+                    <li v-for="s in tableData" :key="s.id" 
+                    @dblclick="playmusic(s.id,s.dts,s.name,s.ar[0].name,s.dt,s.ar[0].id)">
                         <span style="width: 358px;fontSize:16px"><a href="javascript:;">{{s.name}}</a></span>
                         <span style="width: 210px;">
-                        <a style="margin-right:10px" @click="singerMs(s.arid)" href="javascript:;">{{s.singer}}</a>
+                        <a style="margin-right:10px" v-for="(ar,i) in s.ar" :key="i" @click="singerMs(ar.id)" href="javascript:;">{{ar.name}}</a>
                         </span>
+                        <span style="width: 210px;"><a href="javascript:;">{{s.al.name}}</a></span>
                         <span style="width: 50px;"><a href="javascript:;">{{s.dts}}</a></span>
                     </li>
                 </ul>
@@ -23,7 +24,7 @@
 <script>
 import axios from "axios"
 export default {
-    name:'PlaysList',
+    name:'MusicLists',
     data() {
         return {
             tableData:[],
@@ -31,12 +32,11 @@ export default {
         }
     },
     methods:{
-        // // 播放音乐
-        playmusic(s){
-            this.$store.commit('PlayMusic',[s])
-            // console.log([{id,dts,name,singer,dt,arid}]);
+        // 播放音乐
+        playmusic(id,dts,name,singer,dt,arid){
+            this.$store.commit('PlayMusic',[{id,dts,name,singer,dt,arid}])
         },
-            //歌手详情
+            // 歌手详情
         singerMs(id){
             this.$store.commit('SingerIdData',id)
             // console.log(id);
@@ -51,8 +51,36 @@ export default {
         },
     },
     mounted(){
-        this.tableData = JSON.parse(localStorage.getItem('playSongList')) || []
-        
+        // 喜欢的音乐
+        const uid = this.$store.state.userId
+        const cookie = this.$cookieStore.getCookie( 'cookiename')
+        axios.get("http://localhost:3000/likelist", {
+                params: {
+                    uid,
+                    cookie
+                }
+            }).then(res => {
+                const arrmusic = res.data.ids
+                //显示前60
+                arrmusic.splice(60)
+                // console.log(arrmusic.length);
+                arrmusic.forEach(e => {
+                    axios.get("http://localhost:3000/song/detail", {
+                            params: {
+                            ids:e
+                            }
+                        }).then(res2 => {
+                                const [data] = res2.data.songs
+                                let m = parseInt(data.dt/1000 / 60 % 60)
+                                m = m < 10 ? '0' + m : m
+                                let s = parseInt(data.dt/1000 % 60)
+                                s = s < 10 ? '0' + s : s
+                                data.dts = `${m}:${s}`
+                                this.tableData.push(data)
+                        })
+
+                });
+        })
     }
 }
 </script>

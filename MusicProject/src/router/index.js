@@ -12,6 +12,7 @@ import SongRadio from '../components/SongRadio.vue'
 import PlayRadio from '../components/PlayRadio.vue'
 import SingerMess from '../components/SingerMess.vue'
 import PlaysList from '../components/PlaysList.vue'
+import MusicLikeList from '../components/MusicLikeList.vue'
 
 Vue.use(VueRouter)
 //创建router实例对象，去管理一组一组的路由规则
@@ -20,7 +21,7 @@ const router = new VueRouter({
 		{   
             name:'SearchResult',
 			path:'/SearchResult',
-			component:SearchResult
+			component:SearchResult,
 		},
 		{
 			name:'SongBank',
@@ -66,9 +67,30 @@ const router = new VueRouter({
 			name:'PlaysList',
 			path:'/PlaysList',
 			component:PlaysList
+		},		
+		{
+			name:'MusicLikeList',
+			path:'/MusicLikeList',
+			component:MusicLikeList,
+			meta:{isAuth:true}
 		},
 	]
 })
 
 //暴露router
 export default router
+//前置路由守卫
+router.beforeEach((to,from,next)=>{
+	// console.log(to,from)
+	if(to.meta.isAuth) { //判断是否需要鉴定权限
+		if(localStorage.getItem('logincookie')) {
+			next()
+		}else{
+			alert('请先登录')
+		}
+
+	} else{
+		next()
+	}
+	// next()
+})

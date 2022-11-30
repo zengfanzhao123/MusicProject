@@ -44,19 +44,12 @@ const mutations = {
 	SingerIdData(state,value){
 			state.SingerId = value
 	},
-	// Playlist(state){
-	// 	axios.get("http://localhost:3000/record/recent/voice", {
-	// 	}).then(res => {
-	// 		console.log(res.data,'登录后使用')
-	// 	})
-	// }
-
-
 }
 //准备state对象——保存具体的数据
 const state = {
 	songImg:'',
-	SingerId:''
+	SingerId:'',
+	useId:''
 	
 }
 const getters = {
@@ -68,3 +61,5 @@ export default new Vuex.Store({
 	state,
 	getters
 })
+
+

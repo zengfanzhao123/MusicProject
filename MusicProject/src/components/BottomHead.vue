@@ -23,6 +23,10 @@
                 <a href="javascript:;" @click="playsList">
                     <i class="el-icon-time"></i>
                     最近播放
+                </a>                
+                <a href="javascript:;" @click="musicLike">
+                    <i class="el-icon-star-off"></i>
+                    我喜欢的音乐
                 </a>
             </div>
 
@@ -117,6 +121,11 @@ export default {
         }
     },
     methods:{
+        musicLike(){
+            this.$router.push({
+                name:'MusicLikeList',
+            })
+        },
         // 播放历史路由
         playsList(){
                 this.$router.push({
@@ -316,8 +325,6 @@ export default {
         this.$refs.audio.muted = false
         //初始化音量
         this.$refs.audio.volume = 0.5
-        //初始歌曲图片
-        this.$refs.playerBoxImg.src = 'https://www.helloimg.com/images/2022/11/23/ZjSDZ1.jpg'
         axios.get("http://localhost:3000/top/artists", {
             }).then(res => {
                 //   console.log(res.data.artists); 

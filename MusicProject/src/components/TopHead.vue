@@ -22,9 +22,25 @@
         @blur='searchBlur' ref="inputSea"
         >
         </div>
-        <div class="register" @mouseout="loginNone=false"  @mouseover="login"><a href="javascript:;">登录</a></div>
+        <!-- 登录 -->
+        <div class="register"   @click="login"  v-if="!loginstate"><a href="javascript:;">登录</a></div>
         <div class="login" v-show="loginNone">
             <img id="qrimg" ref="qrimg" src="" alt="">
+            <a href="javascript:;" @click="qrlogin">已在手机上确认</a>
+        </div>
+        <!-- 登录成功 -->
+        <div class="register2" v-if="loginstate">
+            <el-popconfirm
+            confirm-button-text='好的'
+            cancel-button-text='不用了'
+            icon="el-icon-info"
+            icon-color="red"
+            title="是否退出登录？"
+            @confirm="confirmlogin"
+            >
+            <a href="javascript:;" slot="reference"><img :src="loginObj.avatarUrl">
+            <span>{{loginObj.nickname}}</span></a>
+            </el-popconfirm>
         </div>
         </div>
         <div class="seachrec" v-show="searchFocusJud">
@@ -50,54 +66,90 @@ export default {
             loginNone:false,
             SearchHistoryObj:JSON.parse(localStorage.getItem('SearchHistory')) || [],
             nowtime:{new:'',old:''},
+            logincode:"",
+            key:'',
+            loginstate:JSON.parse(localStorage.getItem('loginstate')),
+            loginObj:{nickname:"",avatarUrl:"",userId:''},
         }
     },
     methods:{
+        // 退出登录删除cookie
+        confirmlogin(){
+            // console.log(1);
+            this.loginstate = false
+            this.$cookieStore.delCookie('cookiename');
+            localStorage.removeItem('logincookie')
+            localStorage.setItem('loginstate', JSON.stringify(this.loginstate))
+            //跳转到主页
+            this.$router.push({
+                path:'/#/',
+            })
+
+        },
+        //登录
         login(){
-        //     this.nowtime.old = this.nowtime.new || 0
-        //     this.nowtime.new = new Date().getTime()
-        //     let time = this.nowtime.new-this.nowtime.old
-        //     if(time> 2000) {
-        //         // console.log(time);
-        //          axios.get("http://localhost:3000/login/qr/key"+'?t=' + new Date().getTime(),{
-        //             }).then( res =>{
-        //                 // console.log(res.data.data.unikey)
-        //                 axios.get("http://localhost:3000/login/qr/create"+'?t=' + new Date().getTime(),{
-        //                     params:{
-        //                         key:res.data.data.unikey,
-        //                         qrimg
-        //                     }
-        //                 }).then( res2 =>{
-        //                     // console.log(res.data.data.qrimg)
-        //                     this.$refs.qrimg.src = res2.data.data.qrimg
-        //                     this.timer =  setInterval(()=>{
-        //                         axios.get("http://localhost:3000/login/qr/check"+'?t=' + new Date().getTime(),{
-        //                             params:{
-        //                                 key:res.data.data.unikey,
-        //                             }
-        //                         }).then( res3 =>{
-        //                             if(res3.data.code === 802)  {
-        //                                 console.log(res3.data)
-        //                                 clearInterval(this.timer)
-        //                             }
-        //                             if(res3.data.code === 803)  {
-        //                                 console.log(res3.data)
-        //                                 alert('登录成功！')
-        //                                 clearInterval(this.timer)
-        //                             }
-                                    
-        //                             if(res3.data.code === 800)  {
-        //                                 clearInterval(this.timer)
-        //                                 alert('登录失效')
-        //                             }
-                                    
-        //                         })
-        //                     },3000)
-                             
-        //                 })
-        //             })
-        //     }
-        //    this.loginNone = true
+            this.nowtime.old = this.nowtime.new || 0
+            this.nowtime.new = new Date().getTime()
+            let time = this.nowtime.new-this.nowtime.old
+            if(time> 2000) {
+                // console.log(time);
+                 axios.get("http://localhost:3000/login/qr/key"+'?t=' + new Date().getTime(),{
+                    }).then( res =>{
+                        this.key = res.data.data.unikey
+                        axios.get("http://localhost:3000/login/qr/create"+'?t=' + new Date().getTime(),{
+                            params:{
+                                key:res.data.data.unikey,
+                                qrimg
+                            }
+                        }).then( res2 =>{
+                            // console.log(res.data.data.qrimg)
+                            this.$refs.qrimg.src = res2.data.data.qrimg
+                                
+                        })
+                    })
+            }
+                   
+           this.loginNone = true
+        },
+        // 确认登录
+        qrlogin() {
+            this.loginNone=false
+            axios.get("http://localhost:3000/login/qr/check"+'?t=' + new Date().getTime(),{
+                                    params:{
+                                        key:this.key,
+                                    }
+                                }).then( res3 =>{
+                                    this.logincode = res3.data.code
+                                    // console.log(res3.data,res3.data.code);
+                                     //验证收到的登录信息
+                                            this.logintimer = setInterval(()=>{
+                                                if(this.logincode === 803)  {
+                                                    // console.log(res3.data,803)
+                                                    alert('登录成功！')
+                                                    this.loginstate = true
+                                                    this.loginNone = false
+                                                    this.$cookieStore.setCookie( 'cookiename' , res3.data.cookie)
+                                                    localStorage.setItem('loginstate', JSON.stringify(this.loginstate))
+                                                    axios.post(`http://localhost:3000/login/status?timerstamp=${Date.now()}`,{
+                                                                cookie:res3.data.cookie,
+                                                            }).then(res => {
+                                                                localStorage.setItem('logincookie', JSON.stringify(res.data.data.profile))
+                                                                this.loginObj.avatarUrl = res.data.data.profile.avatarUrl
+                                                                this.loginObj.nickname = res.data.data.profile.nickname
+                                                                this.loginObj.userId = res.data.data.profile.userId
+                                                                this.$store.state.userId = res.data.data.profile.userId
+                                                            })
+                                                     clearInterval(this.logintimer)
+                                                }
+                                                
+                                                if(this.logincode === 800)  {
+                                                    clearInterval(this.logintimer)
+                                                    alert('登录失效')
+                                                    this.confirmlogin()
+                                                    
+                                                }
+                                        },3000)
+                                })
         },
         // 搜索页面路由
         search(e){
@@ -145,8 +197,13 @@ export default {
             this.SearchHistoryObj = []
         }
     },
-    mounted(){
-        
+mounted(){
+    //登录记录
+    const data = JSON.parse(localStorage.getItem('logincookie')) || {nickname:"",avatarUrl:"",userId:''}
+        this.loginObj.avatarUrl = data.avatarUrl
+        this.loginObj.nickname = data.nickname
+        this.loginObj.userId = data.userId
+        this.$store.state.userId = data.userId
     }
 }
 </script>
@@ -204,6 +261,28 @@ export default {
             a {
                 margin-left: 87px;
             }
+           
+
+        }
+        .register2 {
+            display: flex;
+            flex: 1;
+            
+            a {
+                margin-left: 87px;
+                
+            }
+            img {
+                width: 25px;
+                border-radius: 50%;
+                vertical-align:middle;
+            }
+            span {
+                margin-left: 5px;
+                font-size: 14px;
+                display: inline-block;
+                vertical-align:middle;
+            }
         }
         .login {
             position: absolute;
@@ -212,7 +291,17 @@ export default {
             z-index: 1009;
             border-radius: 10px;
             width: 180px;
-            height: 180px;
+            height: 220px;
+             background-color: #fff;
+             a {
+                display: block;
+                width: 180px;
+                color: #fff;
+                font-weight: 700;
+                background-color: red;
+                border-radius: 5px;
+                text-align: center;
+             }
         }
     }
     .seachrec {
