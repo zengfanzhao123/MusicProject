@@ -10,6 +10,13 @@ module.exports = defineConfig({
     },
     headers: {
       'Access-Control-Allow-Origin': '*',
+    },
+    proxy: {
+      //解决跨域
+      '/login': {
+        target:'http://www.fzapi22.tk',
+        changeOrigin: true,
+      }
     }
 },
   transpileDependencies: true,

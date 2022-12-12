@@ -130,7 +130,7 @@ export default {
                                                     this.loginNone = false
                                                     this.$cookieStore.setCookie( 'cookiename' , res3.data.cookie)
                                                     localStorage.setItem('loginstate', JSON.stringify(this.loginstate))
-                                                    axios.post("http://www.fzapi22.tk/login/status"+'?t=' + new Date().getTime(),{
+                                                    axios.post("login/status"+'?t=' + new Date().getTime(),{
                                                                 cookie:res3.data.cookie,
                                                             }).then(res => {
                                                                 console.log(res.data,res3.data.cookie);
