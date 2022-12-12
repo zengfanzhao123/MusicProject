@@ -52,7 +52,7 @@ export default {
     },
     mounted(){
         // 歌单详情
-        axios.get("http://localhost:3000/playlist/detail", {
+        axios.get("http://www.fzapi22.tk/playlist/detail", {
                 params: {
                     id:this.$route.query.id
                 }

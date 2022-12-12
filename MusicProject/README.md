@@ -22,4 +22,3 @@ npm run build
 
 ### 使用到的网易云Api接口
 
-https://github.com/Binaryify/NeteaseCloudMusicApi

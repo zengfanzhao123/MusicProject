@@ -50,7 +50,7 @@ export default {
     mounted(){
         //歌手详情
         // console.log(this.$route.query.id);
-        axios.get('http://localhost:3000/artist/detail',{
+        axios.get('http://www.fzapi22.tk/artist/detail',{
             params:{
                 id:this.$route.query.id
             }
@@ -61,7 +61,7 @@ export default {
             // console.log(this.mess);
         })
         //歌手热门音乐
-        axios.get('http://localhost:3000/artist/top/song',{
+        axios.get('http://www.fzapi22.tk/artist/top/song',{
             params:{
                 id:this.$route.query.id
             }

@@ -41,7 +41,7 @@ export default {
         }
     },
     mounted(){
-    axios.get("http://localhost:3000/dj/hot", {
+    axios.get("http://www.fzapi22.tk/dj/hot", {
     }).then(res => {
         // console.log(res.data.djRadios)
         this.MfObjs = [...res.data.djRadios]

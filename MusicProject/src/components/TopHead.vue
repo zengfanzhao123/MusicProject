@@ -93,10 +93,10 @@ export default {
             let time = this.nowtime.new-this.nowtime.old
             if(time> 2000) {
                 // console.log(time);
-                 axios.get("http://localhost:3000/login/qr/key"+'?t=' + new Date().getTime(),{
+                 axios.get("http://www.fzapi22.tk/login/qr/key"+'?t=' + new Date().getTime(),{
                     }).then( res =>{
                         this.key = res.data.data.unikey
-                        axios.get("http://localhost:3000/login/qr/create"+'?t=' + new Date().getTime(),{
+                        axios.get("http://www.fzapi22.tk/login/qr/create"+'?t=' + new Date().getTime(),{
                             params:{
                                 key:res.data.data.unikey,
                                 qrimg
@@ -114,7 +114,7 @@ export default {
         // 确认登录
         qrlogin() {
             this.loginNone=false
-            axios.get("http://localhost:3000/login/qr/check"+'?t=' + new Date().getTime(),{
+            axios.get("http://www.fzapi22.tk/login/qr/check"+'?t=' + new Date().getTime(),{
                                     params:{
                                         key:this.key,
                                     }
@@ -130,9 +130,10 @@ export default {
                                                     this.loginNone = false
                                                     this.$cookieStore.setCookie( 'cookiename' , res3.data.cookie)
                                                     localStorage.setItem('loginstate', JSON.stringify(this.loginstate))
-                                                    axios.post(`http://localhost:3000/login/status?timerstamp=${Date.now()}`,{
+                                                    axios.post("http://www.fzapi22.tk/login/status"+'?t=' + new Date().getTime(),{
                                                                 cookie:res3.data.cookie,
                                                             }).then(res => {
+                                                                console.log(res.data,res3.data.cookie);
                                                                 localStorage.setItem('logincookie', JSON.stringify(res.data.data.profile))
                                                                 this.loginObj.avatarUrl = res.data.data.profile.avatarUrl
                                                                 this.loginObj.nickname = res.data.data.profile.nickname

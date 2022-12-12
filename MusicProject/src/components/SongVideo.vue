@@ -34,7 +34,7 @@ export default {
     methods:{
         // 点击mv，跳转详情
         songBankIdBtn(id,name,artistName){
-            axios.get("http://localhost:3000/mv/url", {
+            axios.get("http://www.fzapi22.tk/mv/url", {
                 params:{
                     id,
                 }
@@ -53,7 +53,7 @@ export default {
         }
     },
     mounted(){
-        axios.get("http://localhost:3000/mv/first?limit=50", {
+        axios.get("http://www.fzapi22.tk/mv/first?limit=50", {
 		}).then(res => {
 			// console.log(res.data)
 			this.MfObjs = [...res.data.data]

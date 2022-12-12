@@ -48,8 +48,14 @@
 
              <div class="singerHot" @mousewheel='dhhot($event)' ref="hot">
                 <h1 style="margin-left:20px">热门歌手</h1>
-                <ul  ref="ulhot">
-                    <li v-for="s in singerHot" :key="s.id">
+                <ul v-if="surface"  ref="ulhot">
+                    <li v-for="s in singerHot"  :key="s.id">
+                    <a href="javascript:;" @click="singerMs(s.id)"><img :src="s.picUrl"></a>
+                    <h4>{{s.name}}</h4>
+                    </li>
+                </ul>
+                <ul v-if="!surface"  ref="ulhot">
+                    <li v-for="s in singerHotr" :key="s.id">
                     <a href="javascript:;" @click="singerMs(s.id)"><img :src="s.picUrl"></a>
                     <h4>{{s.name}}</h4>
                     </li>
@@ -112,6 +118,8 @@ export default {
             ltime:'00:00',
             vsVolume:true,
             singerHot:'',
+            singerHotr:'',
+            surface:false,
             musicObj:'',
             songhots:'',
             songIdObj:[],
@@ -164,15 +172,19 @@ export default {
         },
         // hot歌手滚动事件
         dhhot(e){
+            
             // 滚动上移
             if(e.wheelDelta < 0){
+
                 this.$refs.hot.classList.replace('singerHot','active')
+                this.surface = true
             }
             // console.log(this.$refs.ulhot.scrollTop);
             // 滚动条到0还原
      
             if(this.$refs.ulhot.scrollTop===0 && e.wheelDelta > 0) {
                 this.$refs.hot.classList.replace('active','singerHot')
+                this.surface = false
             }
             // console.log(this.dhhotTop);
         },
@@ -325,10 +337,14 @@ export default {
         this.$refs.audio.muted = false
         //初始化音量
         this.$refs.audio.volume = 0.5
-        axios.get("http://localhost:3000/top/artists", {
+        axios.get("http://www.fzapi22.tk/top/artists", {
             }).then(res => {
                 //   console.log(res.data.artists); 
+                //限制显示歌手个数，优化体验
                   this.singerHot = res.data.artists
+                  const dataArr = res.data.artists
+                  //默认显示八个
+                  this.singerHotr = dataArr.slice(0,8)
             })
         
     },
@@ -416,6 +432,7 @@ width: 1300px;
                 .singerHot{
                     width: 1023px;
                     height: 507px;
+                    overflow:hidden;
                     h1 {
                         font-size: 18px;
                         padding: 40px 30px;

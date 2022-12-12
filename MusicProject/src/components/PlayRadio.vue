@@ -37,7 +37,7 @@ export default {
     methods:{
         // 播放音乐
         playmusic(scope){
-            axios.get("http://localhost:3000/song/url", {
+            axios.get("http://www.fzapi22.tk/song/url", {
                 params: {
                 rid:this.$route.query.id
                 }
@@ -48,7 +48,7 @@ export default {
     },
     mounted(){
         // 歌单详情
-        axios.get("http://localhost:3000/dj/detail", {
+        axios.get("http://www.fzapi22.tk/dj/detail", {
                 params: {
                     rid:this.$route.query.id
                 }

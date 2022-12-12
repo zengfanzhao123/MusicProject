@@ -58,7 +58,7 @@ export default {
         },
         //搜索
         searchList(){
-            axios.get(`http://localhost:3000/cloudsearch?keywords=${this.$route.query.value}`).then((result) => {
+            axios.get(`http://www.fzapi22.tk/cloudsearch?keywords=${this.$route.query.value}`).then((result) => {
                 // console.log("搜索请求成功",result.data);
                 this.tableData = result.data.result.songs
                 //遍历一下时间

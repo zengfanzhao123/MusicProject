@@ -39,7 +39,7 @@ export default {
         }
     },
     mounted(){
-        axios.get("http://localhost:3000/top/playlist/highquality", {
+        axios.get("http://www.fzapi22.tk/top/playlist/highquality", {
 		}).then(res => {
 			// console.log(res.data)
 			this.MfObjs = [...res.data.playlists]

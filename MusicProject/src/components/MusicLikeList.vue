@@ -54,7 +54,7 @@ export default {
         // 喜欢的音乐
         const uid = this.$store.state.userId
         const cookie = this.$cookieStore.getCookie( 'cookiename')
-        axios.get("http://localhost:3000/likelist", {
+        axios.get("http://www.fzapi22.tk/likelist", {
                 params: {
                     uid,
                     cookie
@@ -65,7 +65,7 @@ export default {
                 arrmusic.splice(60)
                 // console.log(arrmusic.length);
                 arrmusic.forEach(e => {
-                    axios.get("http://localhost:3000/song/detail", {
+                    axios.get("http://www.fzapi22.tk/song/detail", {
                             params: {
                             ids:e
                             }

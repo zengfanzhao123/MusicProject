@@ -18,7 +18,7 @@ const actions = {
 //准备mutations对象——修改state中的数据
 const mutations = {
 	SingerId(state,value){
-		axios.get("http://localhost:3000/artists", {
+		axios.get("http://www.fzapi22.tk/artists", {
 			params: {
 			id:value
 			}
@@ -31,7 +31,7 @@ const mutations = {
 	//音乐详情
 	PlayMusic(state,value){
 		const [muiscObj] = value
-		axios.get("http://localhost:3000/song/url", {
+		axios.get("http://www.fzapi22.tk/song/url", {
 			params: {
 			id:muiscObj.id
 			}
