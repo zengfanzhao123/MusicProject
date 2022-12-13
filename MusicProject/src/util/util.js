@@ -13,7 +13,7 @@ export function getCookie(name) {
     var exdate = new Date();
     exdate.setDate(exdate.getDate() + expiredays);
     document.cookie = c_name + "=" + escape(value) + ((expiredays == null) ? "" : ";expires=" + exdate.toGMTString());
-  };
+  }
   
   //删除cookie
   export function delCookie (name) {
@@ -22,4 +22,4 @@ export function getCookie(name) {
     var cval = getCookie(name);
     if (cval != null)
      document.cookie = name + "=" + cval + ";expires=" + exp.toGMTString();
-  };
+  }

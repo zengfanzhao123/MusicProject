@@ -2,17 +2,17 @@ import Vue from 'vue'
 //引入VueRouter
 import VueRouter from 'vue-router'
 //引入Luyou 组件
-import SearchResult from '../components/SearchResult.vue'
-import SongBank from '../components/SongBank.vue'
-import MusicLists from '../components/MusicLists.vue'
-import SongMenu from '../components/SongMenu.vue'
-import SongVideo from '../components/SongVideo.vue'
-import PlayVideo from '../components/PlayVideo.vue'
-import SongRadio from '../components/SongRadio.vue'
-import PlayRadio from '../components/PlayRadio.vue'
-import SingerMess from '../components/SingerMess.vue'
-import PlaysList from '../components/PlaysList.vue'
-import MusicLikeList from '../components/MusicLikeList.vue'
+import SearchResult from '@/pages/SearchResult'
+import SongBank from '@/pages/SongBank'
+import MusicLists from '@/pages/MusicLists'
+import SongMenu from '@/pages/SongMenu'
+import SongVideo from '@/pages/SongVideo'
+import PlayVideo from '@/pages/PlayVideo'
+import SongRadio from '@/pages/SongRadio'
+import PlayRadio from '@/pages/PlayRadio'
+import SingerMess from '@/pages/SingerMess'
+import PlaysList from '@/pages/PlaysList'
+import MusicLikeList from '@/pages/MusicLikeList'
 
 Vue.use(VueRouter)
 //创建router实例对象，去管理一组一组的路由规则

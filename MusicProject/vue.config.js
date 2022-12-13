@@ -1,7 +1,8 @@
 const { defineConfig } = require('@vue/cli-service')
 module.exports = defineConfig({
-    // websocket通信失败解决
+    
   devServer: {
+    // websocket通信失败解决
     host: '0.0.0.0',
   // https:true,
     port: 6103,
