@@ -133,7 +133,7 @@ export default {
                                                     axios.post("login/status"+'?t=' + new Date().getTime(),{
                                                                 cookie:res3.data.cookie,
                                                             }).then(res => {
-                                                                console.log(res.data,res3.data.cookie);
+                                                                //console.log(res.data,res3.data.cookie);
                                                                 localStorage.setItem('logincookie', JSON.stringify(res.data.data.profile))
                                                                 this.loginObj.avatarUrl = res.data.data.profile.avatarUrl
                                                                 this.loginObj.nickname = res.data.data.profile.nickname
