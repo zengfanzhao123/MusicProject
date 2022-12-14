@@ -6,7 +6,7 @@
 
 <script>
 
-import Home from '@/Home'
+import Home from '@/components/home'
 
 
 export default {
