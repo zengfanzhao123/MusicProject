@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import {singer} from '@/http/api'
 export default {
     name:'SingerMess',
     data() {
@@ -48,24 +48,12 @@ export default {
     },
     mounted(){
         //歌手详情
-        // console.log(this.$route.query.id);
-        axios.get('http://www.fzapi22.tk/artist/detail',{
-            params:{
-                id:this.$route.query.id
-            }
-        }).then(res => {
-            // console.log(res.data);
+        singer.getSingerDetail(this.$route.query.id).then(res => {
             this.mess = res.data.data.artist
             this.mess.cover = `${this.mess.cover}?param=220y220`
-            // console.log(this.mess);
         })
         //歌手热门音乐
-        axios.get('http://www.fzapi22.tk/artist/top/song',{
-            params:{
-                id:this.$route.query.id
-            }
-        }).then(res => {
-            // console.log(res.data);
+        singer.getSingerHotSong(this.$route.query.id).then(res => {
             this.tableData = res.data.songs
             this.tableData.forEach((data)=>{
                     let m = parseInt(data.dt/1000 / 60 % 60)

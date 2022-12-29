@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import {radioSet} from '@/http/api'
 export default {
     name:'SongRadio',
     data() {
@@ -41,11 +41,9 @@ export default {
         }
     },
     mounted(){
-    axios.get("http://www.fzapi22.tk/dj/hot", {
-    }).then(res => {
-        // console.log(res.data.djRadios)
+        // 热门电台
+    radioSet.getHotRadio().then(res => {
         this.MfObjs = [...res.data.djRadios]
-        // console.log(this.MfObjs);
     })
     }
 }

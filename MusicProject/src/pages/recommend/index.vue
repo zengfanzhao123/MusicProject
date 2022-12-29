@@ -51,10 +51,8 @@ export default {
         },
     },
     mounted(){
-        // 歌单详情
-        playList.getPlayListDetail(this.$route.query.id).then(res => {
+        this.tableData = this.$route.query.obj
                 // console.log(res.data.playlist.tracks);
-                this.tableData = res.data.playlist.tracks;
                 this.tableData.forEach((data)=>{
                     let m = parseInt(data.dt/1000 / 60 % 60)
                     m = m < 10 ? '0' + m : m
@@ -62,7 +60,6 @@ export default {
                     s = s < 10 ? '0' + s : s
                     data.dts = `${m}:${s}`
                 })
-        })
     }
 }
 </script>

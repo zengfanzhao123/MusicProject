@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import axios from "axios"
+import {playList} from "@/http/api"
 export default {
     name:'SongMenu',
     data() {
@@ -39,11 +39,9 @@ export default {
         }
     },
     mounted(){
-        axios.get("http://www.fzapi22.tk/top/playlist/highquality", {
-		}).then(res => {
-			// console.log(res.data)
+        //热门歌单
+        playList.getHotPlaylist().then(res => {
 			this.MfObjs = [...res.data.playlists]
-            // console.log(this.MfObjs);
 		})
     }
 }

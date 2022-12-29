@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import axios from "axios"
+import {mv} from "@/http/api"
 import PubSub from 'pubsub-js'
 export default {
     name:'SongVideo',
@@ -32,32 +32,26 @@ export default {
         }
     },
     methods:{
+        //mvUrl
+        async getMv(id,name,artistName){
+            const res = await mv.getMvUrl(id)
+            PubSub.publish('PlayVideo',[res.data.data.url,name,artistName])
+        },
         // 点击mv，跳转详情
-        songBankIdBtn(id,name,artistName){
-            axios.get("http://www.fzapi22.tk/mv/url", {
-                params:{
-                    id,
-                }
-            }).then(res => {
-                // console.log(res.data)
-                PubSub.publish('PlayVideo',[res.data.data.url,name,artistName])
-            })
-            
+         songBankIdBtn(id,name,artistName){
+            this.getMv(id,name,artistName)
             this.$router.push({
                 name:'PlayVideo',
                 query:{
                     id,
                 }
             })
-            
         }
     },
     mounted(){
-        axios.get("http://www.fzapi22.tk/mv/first?limit=50", {
-		}).then(res => {
-			// console.log(res.data)
+        // 热门MV
+        mv.getHotMv().then(res => {
 			this.MfObjs = [...res.data.data]
-            // console.log(this.MfObjs);
 		})
     }
 }

@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import axios from "axios"
+import { playList } from '@/http/api'
 export default {
     name:'SongBank',
     data() {
@@ -42,11 +42,9 @@ export default {
         }
     },
     mounted(){
-        axios.get("http://www.fzapi22.tk/toplist", {
-		}).then(res => {
-			// console.log(res.data.list)
+        //热门榜单
+        playList.getTopList().then(res => {
 			this.MfObjs = [...res.data.list]
-            // console.log(this.MfObjs);
 		})
     }
 }

@@ -6,7 +6,7 @@
             <el-tabs  v-model="activeName">
                 <el-tab-pane label="热门歌曲" name="first">
                 <div class="head">
-                <span style="padding-right:348px;margin-left: 37px;">歌名</span><span style="padding-right:200px">歌手</span>
+                <span style="padding-right:352px;margin-left: 37px;">歌名</span><span style="padding-right:200px">歌手</span>
                 <span style="padding-right:204px">专辑</span><span style="padding-right:40px">时长</span>
                 </div>
                 <ul>
@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import axios from "axios"
+import {search} from "@/http/api"
 export default {
     name:'SearchResult',
     data() {
@@ -56,10 +56,9 @@ export default {
             // console.log([{id,dts,name,singer,dt,arid}]);
         },
         //搜索
-        searchList(){
-            axios.get(`http://www.fzapi22.tk/cloudsearch?keywords=${this.$route.query.value}`).then((result) => {
-                // console.log("搜索请求成功",result.data);
-                this.tableData = result.data.result.songs
+        async searchList(){
+            const res = await search.songSearch(this.$route.query.value)
+                this.tableData = res.data.result.songs
                 //遍历一下时间
                 this.tableData.forEach((data)=>{
                     let m = parseInt(data.dt/1000 / 60 % 60)
@@ -68,7 +67,6 @@ export default {
                     s = s < 10 ? '0' + s : s
                     data.dts = `${m}:${s}`
                 })
-            })
         },
         //收藏
         collectmusic(id){

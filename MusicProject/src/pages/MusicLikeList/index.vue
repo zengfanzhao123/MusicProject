@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import axios from "axios"
+import {music} from '@/http/api'
 export default {
     name:'MusicLists',
     data() {
@@ -54,22 +54,12 @@ export default {
         // 喜欢的音乐
         const uid = this.$store.state.userId
         const cookie = this.$cookieStore.getCookie( 'cookiename')
-        axios.get("http://www.fzapi22.tk/likelist", {
-                params: {
-                    uid,
-                    cookie
-                }
-            }).then(res => {
+        music.getLikeMusic(uid, cookie).then(res => {
                 //提取前60
                 const arrmusic = res.data.ids.slice(0,60)
-                
-                // console.log(arrmusic.length);
                 arrmusic.forEach(e => {
-                    axios.get("http://www.fzapi22.tk/song/detail", {
-                            params: {
-                            ids:e
-                            }
-                        }).then(res2 => {
+                    //歌曲详情
+                    music.getSongDetail(e).then(res2 => {
                                 const [data] = res2.data.songs
                                 let m = parseInt(data.dt/1000 / 60 % 60)
                                 m = m < 10 ? '0' + m : m

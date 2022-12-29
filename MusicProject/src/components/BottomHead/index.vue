@@ -33,35 +33,11 @@
         </div>
         <!-- 右侧列表 -->
         <div class="rightList">
-        
-        <!-- 轮播图 -->
-            <div class="slideshow">
-                <el-carousel :interval="4000" type="card" height="200px" style="width:100%">
-                    <el-carousel-item v-for="item in 3" :key="item">
-                    <img src="@/assets/bgimage/1.webp" alt="">
-                    </el-carousel-item>
-                </el-carousel>
-            </div>
-             <div class="rightBottom">
-                <!-- 热门推荐 -->
-                <div class="rightBox">
-
-             <div class="singerHot" @mousewheel='dhhot($event)' ref="hot">
-                <h1 style="margin-left:20px">热门歌手</h1>
-                <ul v-if="surface"  ref="ulhot">
-                    <li v-for="s in singerHot"  :key="s.id">
-                    <a href="javascript:;" @click="singerMs(s.id)"><img :src="s.picUrl"></a>
-                    <h4>{{s.name}}</h4>
-                    </li>
-                </ul>
-                <ul v-if="!surface"  ref="ulhot">
-                    <li v-for="s in singerHotr" :key="s.id">
-                    <a href="javascript:;" @click="singerMs(s.id)"><img :src="s.picUrl"></a>
-                    <h4>{{s.name}}</h4>
-                    </li>
-                </ul>
-             </div>
+                <div class="load" v-if="this.$store.state.loading">
+                    <div class="loading"><loading/></div>
                 </div>
+
+             <div class="rightBottom">
 
              <!-- 播放器 -->
              <div class="playerBox">
@@ -108,10 +84,12 @@
 </template>
 
 <script>
+import loading from '@/components/Loading'
 import pubsub from 'pubsub-js'
-import axios from 'axios'
+import {singer} from '@/http/api'
 export default {
     name:'BottomHead',
+    components:{loading},
     data() {
         return {
             songPlay:false,
@@ -162,12 +140,15 @@ export default {
         },
         //歌手详情
         singerMs(id){
-            this.$router.push({
-                name:'SingerMess',
-                query:{
-                    id
-                }
-            })
+            if(id){
+                this.$router.push({
+                    name:'SingerMess',
+                    query:{
+                        id
+                    }
+            })                
+            } else {alert('无该歌手信息')}
+            
             
         },
         // hot歌手滚动事件
@@ -239,7 +220,7 @@ export default {
             this.musicObj = data
             this.songit()
             //歌手信息
-            this.$store.dispatch('singerId',data.arid)
+            this.$store.dispatch('songId',data.id)
             // 去重添加播放记录
             if (this.songIdObj.length > 0) {
                 let flag = true
@@ -271,18 +252,14 @@ export default {
                         s = s < 10 ? '0' + s : s
                     this.ltime = `${m}:${s}` || '00:00'
                     this.$refs.playcolor.style.width = `${this.songTime / this.musicObj.dt*1000*100}%`
-                    // if((this.$refs.audio.currentTime/this.musicObj.dt)>0.999) console.log(1);
-                    // console.log(this.$refs.playcolor.style.width);
                 },100)
         },
         //点击播放条，调整音乐进度
         progressBar(e){
             //点击播放条，调整音乐进度
-            // console.log(e.offsetX/478);
-            // this.songPlay = !this.songPlay
+
             this.$refs.playcolor.style.width = `${e.offsetX/478*100}%`
             this.$refs.audio.currentTime = (e.offsetX/478*this.musicObj.dt/1000)
-            // console.log((e.offsetX/478*this.musicObj.dt/1000));
             this.songit() //调用播放时间
         },
         // 音量开关
@@ -299,13 +276,12 @@ export default {
         huds(e){
             this.$refs.hudsColor.style.width = `${e.offsetX/100*100}%`
             this.$refs.audio.volume = e.offsetX/100
-            // this.$store.state.songhuds = this.$refs.audio.volume
         },
         //返回首页
         goHome(){
             // this.$router.go()
             this.$router.push({
-                path:'/#/',
+                path:'/home',
             })
         },       
     },
@@ -318,7 +294,6 @@ export default {
     },
     mounted(){
         //读取本地存储,初始播放器
-        
         this.songIdObj = JSON.parse(localStorage.getItem('playSongList')) || [
 {
     "id": 1472480890,
@@ -330,16 +305,14 @@ export default {
     "url": "http://m801.music.126.net/20221128161949/2d72abe174e29af1b900849fb96838b9/jdymusic/obj/wo3DlMOGwrbDjj7DisKw/14096559768/2480/7158/6dcc/10e9e335144b29b1e3e04aadbb3c3d8b.mp3"
 }
 ]
-        // console.log(JSON.parse(localStorage.getItem('playSongList')));
         this.$store.commit('PlayMusic',[this.songIdObj[0]])
         this.pidmusicurl = pubsub.subscribe('musicurl',this.musicurl)
         //默认不静音
         this.$refs.audio.muted = false
         //初始化音量
         this.$refs.audio.volume = 0.5
-        axios.get("http://www.fzapi22.tk/top/artists", {
-            }).then(res => {
-                //   console.log(res.data.artists); 
+        //热门歌手
+        singer.getHotSinger().then(res => {
                 //限制显示歌手个数，优化体验
                   this.singerHot = res.data.artists
                   const dataArr = res.data.artists
@@ -409,86 +382,14 @@ width: 1300px;
         display: flex;
         width: 1024px;
         flex-direction: column;
-        .slideshow {
-            
-            margin-top: 20px;
-            display: flex;
-            flex: 1;
-            width: 100%;
-            
-            img {
-                
-                height: 200px;
-                margin-left: 80px;
-            }
-        }
+
         .rightBottom {
             position: relative;
             display: flex; 
             flex: 2;
                 .rightBox {
                     overflow:scroll;
-
-                .singerHot{
-                    width: 1023px;
-                    height: 507px;
-                    overflow:hidden;
-                    h1 {
-                        font-size: 18px;
-                        padding: 40px 30px;
-                        display: none;
-                    }
-                    ul {
-                        width: 1023px;
-                        height: 1500px;
-                        overflow: scroll;
-                        li {
-                            float: left;
-                            width: 200px;
-                            height: 250px;
-                            margin: 20px;
-                            img {
-                                width: 200px;
-                                height: 200px;
-                                border-radius: 50%;
-                            }
-                            h4 {
-                                text-align: center;
-                            }
-                        }
-                    }
                 }
-                .active{
-                width: 1023px;
-                height: 690px;
-                position: absolute;
-                z-index: 996;
-                top:-270px;
-                left: 0;
-                background-color: #fff;
-                ul {
-                    width: 1023px;
-                    height: 1500px;
-                    overflow: scroll;
-                    li {
-                        float: left;
-                        width: 200px;
-                        height: 250px;
-                        margin: 20px;
-                        img {
-                            width: 200px;
-                            height: 200px;
-                            border-radius: 50%;
-                        }
-                        h4 {
-                            text-align: center;
-                        }
-                    }
-                }
-            }
-                }
-
-
             .playerBox {
                 position: absolute;
                 height: 91px;
@@ -582,5 +483,18 @@ width: 1300px;
         }
     }
 
+    .load {
+        position: fixed;
+        background-color: rgb(255, 255, 255);
+        width: 1022px;
+        height: 689px;
+        z-index: 10000;
+        .loading {
+            position: absolute;
+            top: 50%;
+            right: 50%;
+            transform: translate(-20%, -50%);
+        }
+    }
     }
 </style>

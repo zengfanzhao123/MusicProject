@@ -33,20 +33,23 @@ export default {
         // // 播放音乐
         playmusic(s){
             this.$store.commit('PlayMusic',[s])
-            // console.log([{id,dts,name,singer,dt,arid}]);
         },
             //歌手详情
         singerMs(id){
-            this.$store.commit('SingerIdData',id)
-            // console.log(id);
-            setTimeout(()=>{
-                this.$router.push({
-                name:'SingerMess',
-                query:{
-                    id:this.$store.state.SingerId
-                }
-                })
-            },500)
+            if(id) {
+                this.$store.commit('SingerIdData',id)
+                    setTimeout(()=>{
+                        this.$router.push({
+                        name:'SingerMess',
+                        query:{
+                            id:this.$store.state.SingerId
+                        }
+                        })
+                    },500)
+            } else {
+                alert('无该歌手信息')
+            }
+            
         },
     },
     mounted(){

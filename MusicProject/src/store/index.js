@@ -1,6 +1,6 @@
 //引入Vue核心库
 import Vue from 'vue'
-import  axios  from 'axios'
+import { music } from '@/http/api'
 //引入Vuex
 import Vuex from 'vuex'
 import pubsub from 'pubsub-js'
@@ -9,33 +9,21 @@ Vue.use(Vuex)
 
 //准备actions对象——响应组件中用户的动作
 const actions = {
-	//歌手id用于调取图片
-	singerId(context,value){
-		context.commit('SingerId',value)
+	// 歌手id用于调取图片
+	songId(context,id){
+		context.commit('SongId',id)
 	},
-
 }
 //准备mutations对象——修改state中的数据
 const mutations = {
-	SingerId(state,value){
-		axios.get("http://www.fzapi22.tk/artists", {
-			params: {
-			id:value
-			}
-		}).then(res => {
-			//音乐封面
-			state.songImg = res.data.artist.img1v1Url
-		})
-		
+	SongId(state,id){
+		//获取歌曲封面
+		music.getSongDetail(id).then(res => {state.songImg=res.data.songs[0].al.picUrl})
 	},
 	//音乐详情
 	PlayMusic(state,value){
 		const [muiscObj] = value
-		axios.get("http://www.fzapi22.tk/song/url", {
-			params: {
-			id:muiscObj.id
-			}
-		}).then(res => {
+		music.getMusicUrlId(muiscObj.id).then(res => {
 			muiscObj.url = res.data.data[0].url
 			pubsub.publish('musicurl',muiscObj)
 			// console.log(muiscObj);
@@ -49,7 +37,8 @@ const mutations = {
 const state = {
 	songImg:'',
 	SingerId:'',
-	useId:''
+	useId:'',
+	loading:false,
 	
 }
 const getters = {

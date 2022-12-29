@@ -23,10 +23,9 @@
         >
         </div>
         <!-- 登录 -->
-        <div class="register"   @click="login"  v-if="!loginstate"><a href="javascript:;">登录</a></div>
+        <div class="register"   @click="login"  v-if="!loginstate"><a href="javascript:;">网易云登录</a></div>
         <div class="login" v-show="loginNone">
-            <img id="qrimg" ref="qrimg" src="" alt="">
-            <a href="javascript:;" @click="qrlogin">已在手机上确认</a>
+            <img id="qrimg" ref="qrimg" :src="qrimg" alt="">
         </div>
         <!-- 登录成功 -->
         <div class="register2" v-if="loginstate">
@@ -38,8 +37,8 @@
             title="是否退出登录？"
             @confirm="confirmlogin"
             >
-            <a href="javascript:;" slot="reference"><img :src="loginObj.avatarUrl">
-            <span>{{loginObj.nickname}}</span></a>
+            <a href="javascript:;" slot="reference"><img :src="user.avatarUrl">
+            <span>{{user.nickname}}</span></a>
             </el-popconfirm>
         </div>
         </div>
@@ -49,13 +48,14 @@
                 <li v-for="(h,i) in SearchHistoryObj" :key="i"><a href="javascript:;" @click="searchValueHis(h)">{{h}}</a></li>
             </ul>
         </div>
-        <router-view ref="searchVal"></router-view>
+        <keep-alive include="News"> 
+            <router-view ref="searchVal"></router-view>
+        </keep-alive>
 </div>
 </template>
 
 <script>
-import axios from 'axios'
-
+import {login} from '@/http/api'
 export default {
 
     name:'TopHead',
@@ -66,11 +66,10 @@ export default {
             loginNone:false,
             SearchHistoryObj:JSON.parse(localStorage.getItem('SearchHistory')) || [],
             nowtime:{new:'',old:''},
-            logincode:"",
             key:'',
             loginstate:JSON.parse(localStorage.getItem('loginstate')),
-            loginObj:{nickname:"",avatarUrl:"",userId:''},
-            qrimg:'qrimg',
+            qrimg:'',
+            user:{nickname:null,avatarUrl:null,id:null},
         }
     },
     methods:{
@@ -79,79 +78,63 @@ export default {
             // console.log(1);
             this.loginstate = false
             this.$cookieStore.delCookie('cookiename');
-            localStorage.removeItem('logincookie')
+            localStorage.removeItem('user')
             localStorage.setItem('loginstate', JSON.stringify(this.loginstate))
             //跳转到主页
             this.$router.push({
-                path:'/#/',
+                path:'/home',
             })
 
         },
-        //登录
-        login(){
+        //登录生成二维码
+        async login(){
             this.nowtime.old = this.nowtime.new || 0
             this.nowtime.new = new Date().getTime()
             let time = this.nowtime.new-this.nowtime.old
             if(time> 2000) {
-                // console.log(time);
-                 axios.get("http://www.fzapi22.tk/login/qr/key"+'?t=' + new Date().getTime(),{
-                    }).then( res =>{
-                        this.key = res.data.data.unikey
-                        axios.get("http://www.fzapi22.tk/login/qr/create"+'?t=' + new Date().getTime(),{
-                            params:{
-                                key:res.data.data.unikey,
-                                qrimg:this.qrimg
-                            }
-                        }).then( res2 =>{
-                            // console.log(res.data.data.qrimg)
-                            this.$refs.qrimg.src = res2.data.data.qrimg
-                                
-                        })
-                    })
-            }
-                   
+                const res = await login.getLoginKey()
+                this.key = res.data.data.unikey
+                const res2 = await login.getLoginCreate(res.data.data.unikey)
+                this.qrimg = res2.data.data.qrimg
+            }    
            this.loginNone = true
+           this.qrlogin()
         },
-        // 确认登录
+        // 登录状态
         qrlogin() {
-            this.loginNone=false
-            axios.get("http://www.fzapi22.tk/login/qr/check"+'?t=' + new Date().getTime(),{
-                                    params:{
-                                        key:this.key,
-                                    }
-                                }).then( res3 =>{
-                                    this.logincode = res3.data.code
-                                    // console.log(res3.data,res3.data.code);
-                                     //验证收到的登录信息
-                                            this.logintimer = setInterval(()=>{
-                                                if(this.logincode === 803)  {
-                                                    // console.log(res3.data,803)
-                                                    alert('登录成功！')
-                                                    this.loginstate = true
-                                                    this.loginNone = false
-                                                    this.$cookieStore.setCookie( 'cookiename' , res3.data.cookie)
-                                                    localStorage.setItem('loginstate', JSON.stringify(this.loginstate))
-                                                    axios.post("login/status"+'?t=' + new Date().getTime(),{
-                                                                cookie:res3.data.cookie,
-                                                            }).then(res => {
-                                                                console.log(res.data,res3.data.cookie);
-                                                                localStorage.setItem('logincookie', JSON.stringify(res.data.data.profile))
-                                                                this.loginObj.avatarUrl = res.data.data.profile.avatarUrl
-                                                                this.loginObj.nickname = res.data.data.profile.nickname
-                                                                this.loginObj.userId = res.data.data.profile.userId
-                                                                this.$store.state.userId = res.data.data.profile.userId
-                                                            })
-                                                     clearInterval(this.logintimer)
-                                                }
-                                                
-                                                if(this.logincode === 800)  {
-                                                    clearInterval(this.logintimer)
-                                                    alert('登录失效')
-                                                    this.confirmlogin()
-                                                    
-                                                }
-                                        },3000)
-                                })
+            const loginTimer = setInterval(async() =>{
+                const res = await login.getLoginCheck(this.key)
+                if(res.data.code === 802) {
+                    //名字和头像
+                    this.user.nickname = res.data.nickname
+                    this.user.avatarUrl = res.data.avatarUrl
+                }
+                if(res.data.code === 803) {
+                this.loginstate = true
+                this.loginNone = false
+                this.$cookieStore.setCookie( 'cookiename' , res.data.cookie)
+                localStorage.setItem('loginstate', JSON.stringify(this.loginstate))
+                clearInterval(loginTimer)
+                this.userMess(res.data.cookie)
+                //登陆后刷新
+                setTimeout(() => {location.reload()},1500)
+                }
+                if(res.data.code === 800)  {
+                    clearInterval(loginTimer)
+                    alert('二维码过期,请重新获取')
+                    this.loginstate = false
+                    this.loginNone = false
+                    this.qrimg = null
+                    this.user.nickname = null
+                    this.user.avatarUrl = null
+                }
+            },3000)
+        },
+        //用户信息
+        async userMess(cookie) {
+            const res = await login.getLoginUser(cookie)
+            this.user.id = res.data.data.account.id
+            localStorage.setItem('user',JSON.stringify(this.user))
         },
         // 搜索页面路由
         search(){
@@ -200,12 +183,15 @@ export default {
         }
     },
 mounted(){
-    //登录记录
-    const data = JSON.parse(localStorage.getItem('logincookie')) || {nickname:"",avatarUrl:"",userId:''}
-        this.loginObj.avatarUrl = data.avatarUrl
-        this.loginObj.nickname = data.nickname
-        this.loginObj.userId = data.userId
-        this.$store.state.userId = data.userId
+    // 登录记录
+    if (JSON.parse(localStorage.getItem('user'))){
+        const data = JSON.parse(localStorage.getItem('user'))
+        this.user.avatarUrl = data.avatarUrl
+        this.user.nickname = data.nickname
+        this.user.id = data.id
+        this.$store.state.userId = data.id
+    }
+
     }
 }
 </script>
@@ -290,20 +276,11 @@ mounted(){
             position: absolute;
             top: 58px;
             right: 118px;
-            z-index: 1009;
+            z-index: 99999;
             border-radius: 10px;
             width: 180px;
-            height: 220px;
+            height: 180px;
              background-color: #fff;
-             a {
-                display: block;
-                width: 180px;
-                color: #fff;
-                font-weight: 700;
-                background-color: red;
-                border-radius: 5px;
-                text-align: center;
-             }
         }
     }
     .seachrec {
@@ -338,5 +315,7 @@ mounted(){
         }
     }
 }
-   
+   #qrimg {
+    z-index: 99999;
+   }
 </style>

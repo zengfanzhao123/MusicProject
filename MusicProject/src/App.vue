@@ -1,24 +1,25 @@
 <template>
   <div id="app">
-    <home/>
+  <div>
+    <top-head/>
+    <bottom-head/>
+  </div>
   </div>
 </template>
 
 <script>
-
-import Home from '@/components/home'
-
-
+import BottomHead from '@/components/BottomHead'
+import TopHead from '@/components/TopHead'
 export default {
-  components: { Home },
-  
+  components: { TopHead,BottomHead },
     name: 'App',
-
-
 }
 </script>
 
 <style>
+  .el-table td.el-table__cell, .el-table th.el-table__cell.is-leaf {
+    border: none !important;
+  }
       html {
        
         background-color: rgba(221, 226, 235,.7);
