@@ -67,11 +67,17 @@ export default {
         }
     },
     mounted(){
+        //推荐
         const cookie = this.$cookieStore.getCookie( 'cookiename')
         rec.getRecSong(cookie).then(res=>{
             this.RecObj = res.data.data.dailySongs
             this.imgurl = this.RecObj[0].al.picUrl + '?param=448y224'
-            // console.log(res.data.data.dailySongs);
+            if(!this.RecObj){
+                this.loginstate = false
+                this.$cookieStore.delCookie('cookiename');
+                localStorage.removeItem('user')
+                localStorage.setItem('loginstate', JSON.stringify(this.loginstate))
+            }
         })
         rec.getRecDatil(cookie).then(res=>{
             // console.log(res.data.recommend);

@@ -86,6 +86,7 @@ const router = new VueRouter({
 			name:'home',
 			path:'/home',
 			component:home,
+			meta:{isAuth:true}
 		},
 		{path:'*', redirect: '/home'},
 		{
@@ -102,7 +103,7 @@ export default router
 router.beforeEach((to,from,next)=>{
 	store.state.loading = true;
 	if(to.meta.isAuth) { //判断是否需要鉴定权限
-		if(localStorage.getItem('loginstate')) {
+		if(localStorage.getItem('user')) {
 			next()
 		}else{
 			alert('请先登录')

@@ -1,4 +1,5 @@
 <template>
+<div style="position: relative;">
       <div class="bottom">
         
         <!-- 左侧导航栏 -->
@@ -16,7 +17,8 @@
              </div>
              <div class="head">
                 <div class="side-title">美化</div>
-                <a href="javascript:;"><i class="iconfont icon-zhuti"></i>主题</a>
+                <a href="javascript:;" @click="visualSong" v-show="flag"><i class="iconfont icon-zhuti"></i>动画 NO</a>
+                <a href="javascript:;" @click="visualSong2" v-show="!flag"><i class="iconfont icon-zhuti"></i>动画 OFF</a>
             </div>
             <div class="head">
                 <div class="side-title">我的音乐</div>
@@ -67,7 +69,7 @@
                     <i class="iconfont icon-guanbiyinliang" style="fontSize:20px"></i></a>
                     <!-- 音量条 -->
                     <div class="volumeBig" v-show="vsVolume"><a @click="huds($event)" href="javascript:;"><div ref="hudsColor" class="volumeMin"></div></a></div>
-                    <audio :src="musicObj.url" ref="audio"  @ended="next()" ></audio>
+                    <audio :src="musicObj.url" ref="audio" id="audio"  @ended="next()" ></audio>
                 </div>
                 <div class="songBottom">
                     <a href="javascript:;" @click="singerMs(musicObj.arid)">{{musicObj.singer}}</a>
@@ -79,14 +81,17 @@
              </div>
             </div>
         </div>
-
-    </div>
+ 
+    </div>       
+    <!-- 音频可视化 -->
+    <canvas v-show="!flag" width="256px" height="100px" id="canvas"></canvas>
+</div>
 </template>
 
 <script>
+import Vudio from 'vudio.js'
 import loading from '@/components/Loading'
 import pubsub from 'pubsub-js'
-import {singer} from '@/http/api'
 export default {
     name:'BottomHead',
     components:{loading},
@@ -95,8 +100,6 @@ export default {
             songPlay:false,
             ltime:'00:00',
             vsVolume:true,
-            singerHot:'',
-            singerHotr:'',
             surface:false,
             musicObj:'',
             songhots:'',
@@ -104,9 +107,17 @@ export default {
             num:0,
             songTime:'',
             n:0,
+            flag:true,
         }
     },
     methods:{
+        visualSong2(){
+            this.flag = true
+        },
+        // 可视化音频 
+        visualSong(){
+               this.flag = false
+        },
         musicLike(){
             this.$router.push({
                 name:'MusicLikeList',
@@ -150,24 +161,6 @@ export default {
             } else {alert('无该歌手信息')}
             
             
-        },
-        // hot歌手滚动事件
-        dhhot(e){
-            
-            // 滚动上移
-            if(e.wheelDelta < 0){
-
-                this.$refs.hot.classList.replace('singerHot','active')
-                this.surface = true
-            }
-            // console.log(this.$refs.ulhot.scrollTop);
-            // 滚动条到0还原
-     
-            if(this.$refs.ulhot.scrollTop===0 && e.wheelDelta > 0) {
-                this.$refs.hot.classList.replace('active','singerHot')
-                this.surface = false
-            }
-            // console.log(this.dhhotTop);
         },
         // 路由电台
         songRadio(){
@@ -311,15 +304,30 @@ export default {
         this.$refs.audio.muted = false
         //初始化音量
         this.$refs.audio.volume = 0.5
-        //热门歌手
-        singer.getHotSinger().then(res => {
-                //限制显示歌手个数，优化体验
-                  this.singerHot = res.data.artists
-                  const dataArr = res.data.artists
-                  //默认显示八个
-                  this.singerHotr = dataArr.slice(0,8)
-            })
-        
+        // 先打开动画效果
+         var audioObj = document.querySelector('#audio');
+            var canvasObj = document.querySelector('#canvas');
+            audioObj.crossOrigin = 'anonymous';  //解决跨域
+            var vudio = new Vudio(audioObj, canvasObj, {
+                effect : 'waveform', // 当前只有'waveform'这一个效果，哈哈哈
+                accuracy : 256, // 精度,实际表现为波形柱的个数，范围16-16348，必须为2的N次方
+                width : 1030, // canvas宽度，会覆盖canvas标签中定义的宽度
+                height : 100, // canvas高度，会覆盖canvas标签中定义的高度
+                waveform : {
+                    maxHeight : 80, // 最大波形高度
+                    minHeight : 1, // 最小波形高度
+                    spacing: 1, // 波形间隔
+                    color : ['#f00','#fd8403','yellow'], // 波形颜色，可以传入数组以生成渐变色
+                    shadowBlur : 0, // 阴影模糊半径
+                    shadowColor : '#f00', // 阴影颜色
+                    fadeSide : false, // 渐隐两端
+                    horizontalAlign : 'center', // 水平对齐方式，left/center/right
+                    verticalAlign: 'bottom' // 垂直对齐方式 top/middle/bottom
+                }
+            });
+            // 调用dance方法开始得瑟吧
+               vudio.dance();  
+            
     },
     beforeDestroy(){
         pubsub.unsubscribe(this.pidmusicurl)
@@ -333,6 +341,7 @@ export default {
     
 
 .bottom {
+
 display: flex;
 width: 1300px;
     .leftSide {
@@ -399,7 +408,6 @@ width: 1300px;
                 border-radius: 0 0 30px 0;
                 border-top: 1px solid rgba(221, 226, 235,.7);
                 z-index: 1111;
-                background-color: #fff;
                 img {
                     float: left;
                     width: 91px;
@@ -496,5 +504,13 @@ width: 1300px;
             transform: translate(-20%, -50%);
         }
     }
+
+    }    
+    #canvas {
+        
+        position: absolute;
+        bottom: 0;
+        right:0;
+        z-index: 1110;
     }
 </style>
