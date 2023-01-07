@@ -19,4 +19,6 @@ npm run serve
 ```
 npm run build
 ```
+## 添加音频可视化
 
+## 添加加看板娘
