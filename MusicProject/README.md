@@ -36,3 +36,5 @@ npm run build
 ## 添加音频可视化
 
 ## 添加看板娘
+
+![image](https://user-images.githubusercontent.com/118042668/211133178-6dea3d03-f4db-4f0a-b5c3-2795677b2ece.png)
