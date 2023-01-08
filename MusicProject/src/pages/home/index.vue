@@ -35,6 +35,7 @@
 import carousel from '@/components/carousel'
 import { rec } from '@/http/api'
 export default {
+    name:'indexHome',
     components:{carousel},
     data() {
         return {

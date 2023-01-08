@@ -22,9 +22,8 @@
 </template>
 
 <script>
-import {playList} from '@/http/api'
 export default {
-    name:'MusicLists',
+    name:'songRecommend',
     data() {
         return {
             tableData:[],

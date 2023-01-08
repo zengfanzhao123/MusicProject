@@ -14,6 +14,7 @@
 <script>
 import { banner } from "@/http/api"
 export default {
+  name:"carouselIndex",
   data() {
     return {
       bannerObj:''

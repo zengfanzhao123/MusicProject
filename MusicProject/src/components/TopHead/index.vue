@@ -104,11 +104,6 @@ export default {
         qrlogin() {
             const loginTimer = setInterval(async() =>{
                 const res = await login.getLoginCheck(this.key)
-                if(res.data.code === 802) {
-                    //名字和头像
-                    this.user.nickname = res.data.nickname
-                    this.user.avatarUrl = res.data.avatarUrl
-                }
                 if(res.data.code === 803) {
                 this.loginstate = true
                 this.loginNone = false
@@ -116,8 +111,7 @@ export default {
                 localStorage.setItem('loginstate', JSON.stringify(this.loginstate))
                 clearInterval(loginTimer)
                 this.userMess(res.data.cookie)
-                //登陆后刷新
-                setTimeout(() => {location.reload()},1500)
+                
                 }
                 if(res.data.code === 800)  {
                     clearInterval(loginTimer)
@@ -127,6 +121,7 @@ export default {
                     this.qrimg = null
                     this.user.nickname = null
                     this.user.avatarUrl = null
+                    this.confirmlogin()
                 }
             },3000)
         },
@@ -134,7 +129,12 @@ export default {
         async userMess(cookie) {
             const res = await login.getLoginUser(cookie)
             this.user.id = res.data.data.account.id
+            this.user.nickname = res.data.data.profile.nickname
+            this.user.avatarUrl = res.data.data.profile.avatarUrl
             localStorage.setItem('user',JSON.stringify(this.user))
+            // console.log(res.data);
+            //登陆后刷新
+                setTimeout(() => {location.reload()},1500)
         },
         // 搜索页面路由
         search(){

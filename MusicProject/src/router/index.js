@@ -14,7 +14,6 @@ import PlayRadio from '@/pages/PlayRadio'
 import SingerMess from '@/pages/SingerMess'
 import PlaysList from '@/pages/PlaysList'
 import MusicLikeList from '@/pages/MusicLikeList'
-import cheshi from '@/pages/cheshi'
 import home from '@/pages/home'
 import recommend from '@/pages/recommend'
 Vue.use(VueRouter)
@@ -76,11 +75,6 @@ const router = new VueRouter({
 			path:'/MusicLikeList',
 			component:MusicLikeList,
 			meta:{isAuth:true}
-		},
-		{
-			name:'cheshi',
-			path:'/cheshi',
-			component:cheshi,
 		},		
 		{
 			name:'home',
@@ -116,6 +110,6 @@ router.beforeEach((to,from,next)=>{
 })
 
 //全局后置守卫：初始化时执行、每次路由切换后执行
-router.afterEach((to,from)=>{
+router.afterEach(()=>{
 	store.state.loading = false;
 })
