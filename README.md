@@ -4,15 +4,15 @@ MusicProject
 ## 简单实用现代音乐播放器
 ## 下载依赖
 ```
-npm 安装
+npm install 安装
 ```
 ### 启动项目
 ```
-npm 运行服务
+npm run serve 运行服务
 ```
 ### 打包项目
 ```
-npm 运行结构
+npm run build 运行结构
 ```
 ## 功能
 1.播放音乐
