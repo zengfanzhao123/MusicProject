@@ -25,7 +25,23 @@
         <!-- 登录 -->
         <div class="register"   @click="login"  v-if="!loginstate"><a href="javascript:;">网易云登录</a></div>
         <div class="login" v-show="loginNone">
+        <!-- loginNone -->
+        <el-tabs value='first'>
+            <el-tab-pane  label="扫码登录"  name="first">
+            <h4 v-if="!qrimg">二维码失效请重新获取</h4>
             <img id="qrimg" ref="qrimg" :src="qrimg" alt="">
+            <a href="javascript:;" @click="login" v-if="!qrimg"><span style="margin-left: 50px;">重新获取</span></a>
+            </el-tab-pane>
+            <el-tab-pane style="font:right" label="短信登录" name="second">
+                <input type="text"  ref="phone" style="margin-top: 20px;" placeholder="请输入电话号码">
+                <div class="flex">
+                <input type="text" class="yz" ref="yz" placeholder="请输入验证码">
+                <a href="javascript:;" @click="getauth" ref="qrcode" >
+                <span class="ac">获取验证码</span></a>
+                </div>
+                <a class="dl" href="javascript:;" ref="dl" @click="dxlogin"><span>登录</span></a>
+            </el-tab-pane>
+        </el-tabs>
         </div>
         <!-- 登录成功 -->
         <div class="register2" v-if="loginstate">
@@ -70,12 +86,46 @@ export default {
             loginstate:JSON.parse(localStorage.getItem('loginstate')),
             qrimg:'',
             user:{nickname:null,avatarUrl:null,id:null},
+            loginCode:true,
         }
     },
     methods:{
+        //短信登录
+        async dxlogin(){
+            if(this.$refs.phone.value && this.$refs.yz.value){
+                const res = await login.getCellphone(this.$refs.phone.value,this.$refs.yz.value)
+                this.$cookieStore.setCookie( 'cookiename' , res.data.cookie)
+                this.loginstate = true
+                this.loginNone = false
+                this.userMess(res.data.cookie)
+            } else {
+                alert('请先输入电话号码和验证码')
+            }
+        },
+        //获取验证码
+        async getauth(){
+            if(this.$refs.phone.value) {
+                this.$refs.qrcode.style = "pointer-events:none"
+                const res = await login.getCaptcha(this.$refs.phone.value)
+                console.log(res.data);
+                if(res.data.code === 400) alert('手机号不符合规范')
+                let num = 60
+                const getqrtime = setInterval(()=>{
+                    num--
+                    if(num < 10) num = '0' + num
+                    this.$refs.qrcode.children[0].innerHTML = `${num}后重新发送`
+                    if (num === '00') {
+                        clearInterval(getqrtime)
+                        this.$refs.qrcode.children[0].innerHTML = `重新发送`
+                        this.$refs.qrcode.style = "pointer-events:auto"
+                    }
+                },1000)
+            } else {
+                alert('请先输入电话号码')
+            }
+        },
         // 退出登录删除cookie
         confirmlogin(){
-            // console.log(1);
             this.loginstate = false
             this.$cookieStore.delCookie('cookiename');
             localStorage.removeItem('user')
@@ -96,7 +146,7 @@ export default {
                 this.key = res.data.data.unikey
                 const res2 = await login.getLoginCreate(res.data.data.unikey)
                 this.qrimg = res2.data.data.qrimg
-            }    
+            }
            this.loginNone = true
            this.qrlogin()
         },
@@ -111,28 +161,23 @@ export default {
                 localStorage.setItem('loginstate', JSON.stringify(this.loginstate))
                 clearInterval(loginTimer)
                 this.userMess(res.data.cookie)
-                
                 }
                 if(res.data.code === 800)  {
                     clearInterval(loginTimer)
-                    alert('二维码过期,请重新获取')
                     this.loginstate = false
                     this.loginNone = false
                     this.qrimg = null
-                    this.user.nickname = null
-                    this.user.avatarUrl = null
-                    this.confirmlogin()
                 }
             },3000)
         },
         //用户信息
         async userMess(cookie) {
+            
             const res = await login.getLoginUser(cookie)
             this.user.id = res.data.data.account.id
             this.user.nickname = res.data.data.profile.nickname
             this.user.avatarUrl = res.data.data.profile.avatarUrl
             localStorage.setItem('user',JSON.stringify(this.user))
-            // console.log(res.data);
             //登陆后刷新
                 setTimeout(() => {location.reload()},1500)
         },
@@ -273,14 +318,62 @@ mounted(){
             }
         }
         .login {
+            box-shadow: 1px 1px 1px 1px rgba(221, 226, 235);
             position: absolute;
-            top: 58px;
-            right: 118px;
+            top: 450%;
+            right: 25%;
             z-index: 99999;
             border-radius: 10px;
-            width: 180px;
-            height: 180px;
+            width: 400px;
+            height: 300px;
              background-color: #fff;
+             border: 1px solid #ccc;
+             box-sizing: border-box;
+             padding: 20px 100px;
+             input {
+                border: 1px solid #ccc;
+                border-radius: 2px;
+                height: 25px;
+             }
+             .yz {
+                width: 85px;
+                margin-bottom: 25px;
+            }
+
+            span {
+                font-size: 10px;
+                margin-left:5px;
+                background-color:skyblue;
+                display: inline-block;
+                height: 28px;
+                width: 80px;
+                text-align: center;
+                vertical-align:middle;
+                line-height: 28px;
+                border-radius: 5px;
+            }
+            .flex {
+                display: flex;
+                width: 175px;
+                height: 27px;
+                justify-content: space-between;
+                margin-top: 25px;
+                margin-bottom: 30px;
+            }
+            
+            .dl {
+                margin-left: 25px;
+                display: inline-block;
+                width: 100px;
+                span {
+                    display: inline-block;
+                    width: 100px;
+                    text-align: center;
+                    color: #fff;
+                    background-color: red;
+                }
+                
+            }
         }
     }
     .seachrec {

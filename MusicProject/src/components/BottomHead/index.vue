@@ -47,7 +47,7 @@
                 <img :src="songPlayImg" ref="playerBoxImg" alt="">
                 <div class="songTop">
                 <!-- 歌曲名 -->
-                    <a href="javascript:;" style="width:260px;height:48px">{{musicObj.name}}</a>
+                    <a href="javascript:;" @click="getlyric" style="width:260px;height:48px">{{musicObj.name}}</a>
                     <!-- 上一首 -->
                     <a href="javascript:;" @click="previous" style="margin-left: 56px;"><i class="iconfont icon-shangyishou"></i></a>
                     <!-- 暂停播放 -->
@@ -83,13 +83,10 @@
         </div>
  
     </div>       
-    <!-- 音频可视化 -->
-    <canvas v-show="!flag" width="256px" height="100px" id="canvas"></canvas>
 </div>
 </template>
 
 <script>
-import Vudio from 'vudio.js'
 import loading from '@/components/Loading'
 import pubsub from 'pubsub-js'
 export default {
@@ -111,6 +108,11 @@ export default {
         }
     },
     methods:{
+        getlyric(){
+            this.$router.push({
+                name: 'getLyric',
+            })
+        },
         visualSong2(){
             this.flag = true
         },
@@ -205,11 +207,12 @@ export default {
         },
         //接收播放音乐url
         musicurl(_,data){
-            // console.log(data);
+            console.log(data);
             if(this.n>0)  this.songPlay = true
             if(this.n>0) this.$refs.audio.autoplay = true
             this.n++
             // console.log(this.n);
+            this.$store.state.musicObj = data;
             this.musicObj = data
             this.songit()
             //歌手信息
@@ -239,6 +242,7 @@ export default {
         songit() {
             this.songInfoTime =  setInterval(()=> {
                     this.songTime = this.$refs.audio.currentTime 
+                    this.$store.state.currentTime = this.songTime
                     let m = parseInt(this.songTime / 60 % 60)
                         m = m < 10 ? '0' + m : m
                     let s = parseInt(this.songTime % 60)
@@ -304,30 +308,6 @@ export default {
         this.$refs.audio.muted = false
         //初始化音量
         this.$refs.audio.volume = 0.5
-        // 先打开动画效果
-         var audioObj = document.querySelector('#audio');
-            var canvasObj = document.querySelector('#canvas');
-            audioObj.crossOrigin = 'anonymous';  //解决跨域
-            var vudio = new Vudio(audioObj, canvasObj, {
-                effect : 'waveform', // 当前只有'waveform'这一个效果，哈哈哈
-                accuracy : 256, // 精度,实际表现为波形柱的个数，范围16-16348，必须为2的N次方
-                width : 1030, // canvas宽度，会覆盖canvas标签中定义的宽度
-                height : 100, // canvas高度，会覆盖canvas标签中定义的高度
-                waveform : {
-                    maxHeight : 80, // 最大波形高度
-                    minHeight : 1, // 最小波形高度
-                    spacing: 1, // 波形间隔
-                    color : ['#f00','#fd8403','yellow'], // 波形颜色，可以传入数组以生成渐变色
-                    shadowBlur : 0, // 阴影模糊半径
-                    shadowColor : '#f00', // 阴影颜色
-                    fadeSide : false, // 渐隐两端
-                    horizontalAlign : 'center', // 水平对齐方式，left/center/right
-                    verticalAlign: 'bottom' // 垂直对齐方式 top/middle/bottom
-                }
-            });
-            // 调用dance方法开始得瑟吧
-               vudio.dance();  
-            
     },
     beforeDestroy(){
         pubsub.unsubscribe(this.pidmusicurl)

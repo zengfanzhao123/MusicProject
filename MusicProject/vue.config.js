@@ -6,7 +6,7 @@ module.exports = defineConfig({
       '/api': {
             target:'http://www.fzapi22.tk',
             changeOrigin: true,
-            ws:true,
+            ws:false,
             pathRewrite: { 
               '^/api' : '' // 路径重写
             } 

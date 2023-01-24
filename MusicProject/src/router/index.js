@@ -16,6 +16,7 @@ import PlaysList from '@/pages/PlaysList'
 import MusicLikeList from '@/pages/MusicLikeList'
 import home from '@/pages/home'
 import recommend from '@/pages/recommend'
+import getLyric from '@/pages/getLyric'
 Vue.use(VueRouter)
 //创建router实例对象，去管理一组一组的路由规则
 const router = new VueRouter({
@@ -87,6 +88,11 @@ const router = new VueRouter({
 			name:'recommend',
 			path:'/recommend',
 			component:recommend,
+		},	
+		{
+			name:'getLyric',
+			path:'/getLyric',
+			component:getLyric,
 		},	
 	]
 })

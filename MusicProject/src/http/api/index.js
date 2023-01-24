@@ -55,7 +55,23 @@ export const login = {
                 cookie,
             }
         })
-    }
+    },
+    //手机登录
+    getCellphone(phone,captcha){
+        return service({
+            url:'/login/cellphone',
+            method: 'get',
+            params:{phone,captcha,timestamp:new Date().getTime()},
+        })
+    },
+    // 发送验证码
+    getCaptcha(phone){
+        return service({
+            url:'/captcha/sent',
+            method: 'get',
+            params:{phone},
+        })
+    },
 }
 export const singer = {
     //热门歌手
@@ -223,6 +239,15 @@ export const rec = {
             url: '/recommend/resource',
             method: 'get',
             params:{cookie}
+        })
+    }
+}
+export const lyric = {
+    getLyric(id){
+        return service({
+            url: '/lyric',
+            method: 'get',
+            params:{id}
         })
     }
 }

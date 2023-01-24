@@ -1,6 +1,7 @@
 //引入Vue核心库
 import Vue from 'vue'
-import { music } from '@/http/api'
+import { music,lyric } from '@/http/api'
+import { streaming } from '@/components/streaming'
 //引入Vuex
 import Vuex from 'vuex'
 import pubsub from 'pubsub-js'
@@ -19,6 +20,17 @@ const mutations = {
 	SongId(state,id){
 		//获取歌曲封面
 		music.getSongDetail(id).then(res => {state.songImg=res.data.songs[0].al.picUrl})
+		
+        lyric.getLyric(id).then(res => {
+			let songly = res.data.lrc.lyric
+			if(songly) {
+				// 获取到歌词丢去加工
+				state.lyricObj = streaming.disposeLyric(songly)
+			} else {
+				state.lyricObj = [{msg:'暂无该音乐歌词'}]
+			}
+		})
+        
 	},
 	//音乐详情
 	PlayMusic(state,value){
@@ -39,7 +51,9 @@ const state = {
 	SingerId:'',
 	useId:'',
 	loading:false,
-	
+	muiscObj:'',
+	lyricObj:'',
+	currentTime:'',
 }
 const getters = {
 }

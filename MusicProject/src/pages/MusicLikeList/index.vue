@@ -84,7 +84,7 @@ export default {
     z-index: 998;
     top: 100%;
     right: 0;
-overflow: scroll;
+    overflow: scroll;
     .searchResult2 {
         padding: 35px 20px 20px 0;
         
