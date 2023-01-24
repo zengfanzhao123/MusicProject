@@ -15,7 +15,7 @@ npm run serve 运行服务
 npm run build 运行结构
 ```
 ## 功能
-1.播放音乐
+1.播放音乐/n
 2.搜索
 3.MV
 4.播放器
