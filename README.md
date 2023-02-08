@@ -26,4 +26,8 @@ npm run build 运行结构
 9.登录
 10.每日推荐
 11.歌手页面
-12.歌词滚动
+### 添加音频可视化
+
+### 添加看板娘
+
+![图片](https://user-images.githubusercontent.com/118042668/211133178-6dea3d03-f4db-4f0a-b5c3-2795677b2ece.png)
